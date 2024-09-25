@@ -116,7 +116,7 @@ Sever is ready, you can now access the platform at http://127.0.0.1:8000/login.
 
 ### Logging In
 - **Login Page**:
-Visit [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/login) to log in using the credentials of the superuser you created. After login, you can manage **Clinics**, **Doctors**, and **Patients**.
+Visit [http://127.0.0.1:8000/login](http://127.0.0.1:8000/login) to log in using the credentials of the superuser you created. After login, you can manage **Clinics**, **Doctors**, and **Patients**.
 ![alt loginPage](login.png)
 ### Home Page
 - **API Details**: Contains all the necessary API information.
