@@ -1,0 +1,197 @@
+{% extends 'main.html' %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item"><a href="/patients">Patients</a></li>
+    {% if patient %}
+        <li class="breadcrumb-item active" aria-current="page">{{ patient.name }}</li>
+    {% else %}
+        <li class="breadcrumb-item active" aria-current="page">Add Patient</li>
+    {% endif %}
+{% endblock %}
+
+{% block maincontent %}
+    <div class="container" style="max-width: 1200px">
+        <H1>Patient Details</H1><br>
+        <form action="{% if patient %}/edit_patient/{{ patient.id }}{% else %}{% endif %}" method="post">
+            {% csrf_token %}
+            <div class="row gy-2 overflow-hidden">
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="name" id="name"
+                               value="{{ patient.name }}" required>
+                        <label for="name" class="form-label">Name</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="address" id="address"
+                               value="{{ patient.address }}" required>
+                        <label for="name" class="form-label">Address</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="phone_number" id="phone_number"
+                               value="{{ patient.phone_number }}" required>
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="date" class="form-control" name="date" id="date"
+                               value="{{ patient.date_of_birth | date:'Y-m-d' }}" required>
+                        <label for="date" class="form-label">Date of Birth</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="ssn" id="ssn"
+                               value="{{ patient.last_4_ssn }}" required>
+                        <label for="name" class="form-label">Last 4 digits of SSN</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="gender" id="gender" aria-label="Select your state" required>
+                            <option value="" selected disabled>Select gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                        <label for="gender" class="form-label">Gender</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-grid my-3">
+                        <button class="btn btn-primary btn-lg bs-button" type="submit">
+                            {% if patient %}
+                                Edit
+                            {% else %}
+                                Add
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {% if patient %}
+            <hr>
+            <br>
+            <div class="row">
+                <div class="col-lg-12 mb-3">
+                    <div class="row">
+                        <div class="col-lg-6 d-flex justify-content-start mb-1">
+                            <H1>Next Appointment</H1>
+                        </div>
+                        <div class="col-lg-6 d-flex justify-content-end mb-1">
+                            <button type="button" class="btn btn-md action-btn-outline w-auto"
+                                    onclick="window.location.href='/add_appointment/{{ patient.id }}'">
+                                <div class="d-flex justify-content-between">
+                                    <span class="material-symbols-outlined">
+                                        add
+                                    </span>
+                                    Book New Appointment
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="hide-scroll">
+                        <table class="table table-striped">
+                            <thead style="background-color: #0e2238;color: white">
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Clinic</th>
+                                <th scope="col">Doctor</th>
+                                <th scope="col">Procedure</th>
+                                <th scope="col">Booked Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if appointment %}
+                                <tr>
+                                    <td>{{ appointment.appointment_date}}</td>
+                                    <td>{{ appointment.appointment_time }}</td>
+                                    <td>{{ appointment.clinic.name }}</td>
+                                    <td>{{ appointment.doctor.name }}</td>
+                                    <td>{{ appointment.procedure }}</td>
+                                    <td>{{ appointment.booked_on }}</td>
+                                </tr>
+                            {% else %}
+                                <td colspan="6" align="center">No Appointments</td>
+                            {% endif %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="col-lg-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <H1>Visits</H1>
+                        <button type="button" class="btn btn-md action-btn-outline"
+                                onclick="window.location.href='/add_visit/{{ patient.id }}'">
+                            <div class="d-flex justify-content-between">
+                                <span class="material-symbols-outlined">
+                                    add
+                                </span>
+                                Add new Visit
+                            </div>
+                        </button>
+                    </div>
+                    <br>
+                    <div class="hide-scroll">
+                        <table class="table table-striped">
+                            <thead style="background-color: #0e2238;color: white">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Visit Date</th>
+                                <th scope="col">Doctor Name</th>
+                                <th scope="col">Clinic Name</th>
+                                <th scope="col">Procedure Done</th>
+                                <th scope="col">Doctor's Notes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if visits %}
+                                {% for visit  in visits %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ visit.visit_date }}</td>
+                                        <td>{{ visit.doctor.name }}</td>
+                                        <td>{{ visit.clinic.name }}</td>
+                                        <td>{{ visit.procedures_done }}</td>
+                                        <td>
+                                            <span type="button" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" title="{{ visit.doctor_notes }}">
+                                                {{ visit.doctor_notes|truncatechars:30 }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <td colspan="6" align="center">No Previous Visits</td>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            document.getElementById('gender').value = '{{ patient.gender }}';
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+{% endblock %}

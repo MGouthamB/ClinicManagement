@@ -1,0 +1,155 @@
+{% extends 'main.html' %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item"><a href="/doctors">Doctors</a></li>
+    {% if doctor %}
+        <li class="breadcrumb-item active" aria-current="page">{{ doctor.name }}</li>
+    {% else %}
+        <li class="breadcrumb-item active" aria-current="page">Add Clinic</li>
+    {% endif %}
+{% endblock %}
+
+{% block maincontent %}
+    <div class="container" style="max-width: 1200px">
+        <H1>Doctor Details</H1><br>
+        <form action="{% if doctor %}/edit_doctor/{{ doctor.id }}{% else %}{% endif %}" method="post">
+            {% csrf_token %}
+            <div class="row gy-2 overflow-hidden">
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="npi" id="npi" minlength="10" maxlength="10"
+                               value="{{ doctor.npi }}" required>
+                        <label for="npi" class="form-label">NPI</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="name" id="name"
+                               value="{{ doctor.name }}" required>
+                        <label for="name" class="form-label">Name</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" name="email" id="email"
+                               value="{{ doctor.email }}" required>
+                        <label for="email" class="form-label">Email</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="phone_number" id="phone_number"
+                               value="{{ doctor.phone_number }}" required>
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <select id="procedures" multiple="multiple" style="width: 100%;" class="select2-multiple"
+                                name="procedures">
+                            {% for procedure in procedures %}
+                                <option value="{{ procedure.id }}"
+                                        {% if procedure in doctor.specialties.all %}selected{% endif %}>{{ procedure.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="procedures" class="form-label"
+                               style="top:-14px;color:rgba(var(--bs-body-color-rgb), .65); font-size: .90rem">Specialties</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-grid my-3">
+                        <button class="btn btn-primary btn-lg bs-button" type="submit">
+                            {% if doctor %}
+                                Edit
+                            {% else %}
+                                Add
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        {% if doctor %}
+            <hr>
+            <br>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <H1>Clinic Affiliation</H1>
+                    </div>
+                    <br>
+                    <div class="hide-scroll">
+                        <table class="table table-striped">
+                            <thead style="background-color: #0e2238;color: white">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Clinic Name</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if  affiliated_clinics %}
+                                {% for affiliation  in affiliated_clinics %}
+                                    <tr onclick="window.location.href='/clinics/{{ affiliation.clinic.id }}'" role="button">
+                                        <th scope="row">
+                                            {{ forloop.counter }}
+                                        </th>
+                                        <td>{{ affiliation.clinic.name }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" align="center"> No records</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <H1>Affiliated Patients</H1>
+                    </div>
+                    <br>
+                    <div class="hide-scroll">
+                        <table class="table table-striped">
+                            <thead style="background-color: #0e2238;color: white">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Patient Name</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if affiliated_patients %}
+                                {% for affiliation  in affiliated_patients %}
+                                    <tr onclick="window.location.href='/patients/{{ affiliation.id }}'" role="button">
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ affiliation }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" align="center"> No records</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            $('.select2-multiple').select2({
+                placeholder: "Select specialties",
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}

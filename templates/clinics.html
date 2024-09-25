@@ -1,0 +1,59 @@
+{% extends 'main.html' %}
+
+{% block clinic %}active_link{% endblock %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item active" aria-current="page">Clinics</li>{% endblock %}
+
+{% block display_heading %}{% endblock %}
+{% block heading %} Clinics List {% endblock %}
+{% block add_link %}/add_clinic{% endblock %}
+
+{% block maincontent %}
+    <div class="hide-scroll">
+        <table class="table table-striped">
+            <thead style="background-color: #0e2238;color: white">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Phone Number</th>
+                <th scope="col">City</th>
+                <th scope="col">State</th>
+                <th scope="col">No. of Aff. Doctors</th>
+                <th scope="col">No. of Aff. Patients</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if clinics %}
+                {% for clinic in clinics %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ clinic.name }}</td>
+                        <td>{{ clinic.phone_number }}</td>
+                        <td>{{ clinic.city }}</td>
+                        <td>{{ clinic.state }}</td>
+                        <td>{{ clinic.affiliated_doctors }}</td>
+                        <td>{{ clinic.affiliated_patients }}</td>
+                        <td>
+                            <b>
+                                <a href="clinics/{{ clinic.id }}"
+                                   class="d-inline-flex align-items-center justify-content-center">
+                                    manage
+                                    <span class="material-symbols-outlined" style="font-size: 25px">
+                                expand_circle_right
+                            </span>
+                                </a>
+                            </b>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" align="center">No Clinics Yet</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

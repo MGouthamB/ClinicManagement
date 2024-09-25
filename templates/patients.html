@@ -1,0 +1,79 @@
+{% extends 'main.html' %}
+
+{% block patients %}active_link{% endblock %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item active" aria-current="page">Patients</li>{% endblock %}
+
+{% block display_heading %}{% endblock %}
+{% block heading %} Patients List {% endblock %}
+{% block add_link %}/add_patient{% endblock %}
+
+{% block maincontent %}
+    <div class="hide-scroll">
+        <table class="table table-striped">
+        <thead style="background-color: #0e2238;color: white">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Date of Birth</th>
+            <th scope="col">Last Visit Date</th>
+            <th scope="col">Last Visit Doctor</th>
+            <th scope="col">Last Visit Procedures</th>
+            <th scope="col">Next Appointment Date</th>
+            <th scope="col">Next Appointment Doctor</th>
+            <th scope="col">Next Appointment Procedures</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if patients %}
+        {% for patient in patients %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.date_of_birth }}</td>
+                {% if patient.last_visit %}
+                    {% with patient.last_visit as  last_visit %}
+                    <td>{{ last_visit.visit_date }}</td>
+                    <td>{{ last_visit.doctor.name }}</td>
+                    <td>{{ last_visit.procedures_done }}</td>
+                    {% endwith %}
+                {% else %}
+                    <td>No records</td>
+                    <td>No records</td>
+                    <td>No records</td>
+                {% endif %}
+                {% if patient.next_appointment %}
+                    {% with patient.next_appointment as  next_appointment %}
+                    <td>{{ next_appointment.appointment_date }}</td>
+                    <td>{{ next_appointment.doctor.name }}</td>
+                    <td>{{ next_appointment.procedure }}</td>
+                    {% endwith %}
+                {% else %}
+                    <td>No records</td>
+                    <td>No records</td>
+                    <td>No records</td>
+                {% endif %}
+                <td>
+                    <b>
+                        <a href="patients/{{ patient.id }}"
+                           class="d-inline-flex align-items-center justify-content-center">
+                            manage
+                            <span class="material-symbols-outlined" style="font-size: 25px">
+                                expand_circle_right
+                            </span>
+                        </a>
+                    </b>
+                </td>
+            </tr>
+        {% endfor %}
+        {% else %}
+                <tr>
+                    <td colspan="10" align="center">No Doctors Yet</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

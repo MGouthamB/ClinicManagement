@@ -1,0 +1,19 @@
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal">Alert</h5>
+        <button type="button" class="close border-0 bs bg-transparent" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" class="fs-2" onclick="closeModal()">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          {{ msg }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal()">Close</button>
+        <button id="modal-action" type="button" class="btn btn-primary bs-button" >Okay</button>
+      </div>
+    </div>
+  </div>
+</div>

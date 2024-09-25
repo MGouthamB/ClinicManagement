@@ -1,0 +1,177 @@
+{% extends 'main.html' %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item"><a href="/clinics">Clinics</a></li>
+    <li class="breadcrumb-item"><a href="/clinics/{{ clinic.id }}">{{ clinic.name }}</a></li>
+    {% if affiliation %}
+        <li class="breadcrumb-item active" aria-current="page">Clinic Doctor Affiliation Details</li>
+    {% else %}
+        <li class="breadcrumb-item active" aria-current="page">Add Clinic Doctor Affiliation</li>
+    {% endif %}
+{% endblock %}
+
+{% block maincontent %}
+    <div class="container" style="max-width: 1000px">
+        <H1>Clinic Doctor Affiliation Details</H1><br>
+        <form action="{% if affiliation %}{% else %}/add_clinic_aff_doc/{{ clinic.id }}{% endif %}" method="post"
+              id="add_clinic_aff_doc">
+            {% csrf_token %}
+            <div class="row gy-2 overflow-hidden">
+                {% if affiliation %}
+                    <div class="col-12">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" name="cad_name"
+                                   value="{{ affiliation.doctor.name }}"
+                                   {% if affiliation %}disabled{% endif %} required>
+                            <label for="cad_off_addr" class="form-label">Doctor Name</label>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" name="cad_name" aria-label="Select Doctor" required>
+                                <option value="" selected>Select Doctor</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">{{ doctor.name }} ( {{ doctor.npi }} )</option>
+                                {% endfor %}
+                            </select>
+                            <label for="state">Doctor</label>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="cad_off_addr"
+                               value="{{ affiliation.office_address }}" required>
+                        <label for="cad_off_addr" class="form-label">Office Address</label>
+                    </div>
+                </div>
+                <h3>Working Schedule</h3>
+                <hr>
+                <div id="timePickers">
+
+                </div>
+                <div class="col-12">
+                    <div class="d-grid my-3">
+                        <button class="btn btn-primary btn-lg bs-button" type="submit">
+                            {% if affiliation %}
+                                Edit
+                            {% else %}
+                                Add
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        {% if affiliation %}
+            const defaultTimes = {
+                Monday: {start: '{{affiliation.mon_start_time}}', end: '{{affiliation.mon_end_time}}'},
+                Tuesday: {start: '{{affiliation.tue_start_time}}', end: '{{affiliation.tue_end_time}}'},
+                Wednesday: {start: '{{affiliation.wed_start_time}}', end: '{{affiliation.wed_end_time}}'},
+                Thursday: {start: '{{affiliation.thu_start_time}}', end: '{{affiliation.thu_end_time}}'},
+                Friday: {start: '{{affiliation.fri_start_time}}', end: '{{affiliation.fri_end_time}}'},
+                Saturday: {start: '{{affiliation.sat_start_time}}', end: '{{affiliation.sat_end_time}}'},
+                Sunday: {start: '{{affiliation.sun_start_time}}', end: '{{affiliation.sun_end_time}}'},
+            };
+        {% else %}
+            const defaultTimes = {
+                Monday: {start: '00:00', end: '00:00'},
+                Tuesday: {start: '00:00', end: '00:00'},
+                Wednesday: {start: '00:00', end: '00:00'},
+                Thursday: {start: '00:00', end: '00:00'},
+                Friday: {start: '00:00', end: '00:00'},
+                Saturday: {start: '00:00', end: '00:00'},
+                Sunday: {start: '00:00', end: '00:00'}
+            };
+        {% endif %}
+
+        function generateTimeOptions(selectedTime, interval = 30) {
+            let options = '<option value="" selected>Select Time</option>';
+            for (let hour = 0; hour < 24; hour++) {
+                for (let minute = 0; minute < 60; minute += interval) {
+                    const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    const isSelected = timeString === selectedTime ? 'selected' : '';
+                    options += `<option value="${timeString}" ${isSelected}>${timeString}</option>`;
+                }
+            }
+            return options;
+        }
+
+        function generateTimePickers() {
+            const timePickersContainer = document.getElementById('timePickers');
+            let timePickersHTML = '';
+
+            daysOfWeek.forEach(day => {
+                timePickersHTML += `
+                <div class="row mb-4">
+                    <h4>${day}</h4>
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <select class="form-select start-time" id="${day.toLowerCase()}StartTime"
+                                    name="${day.toLowerCase()}StartTime" aria-label="Select start time" required>
+                                ${generateTimeOptions(defaultTimes[day].start)}
+                            </select>
+                            <label for="${day.toLowerCase()}StartTime">Start Time</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <select class="form-select end-time" id="${day.toLowerCase()}EndTime"
+                                    name="${day.toLowerCase()}EndTime" aria-label="Select end time" required>
+                                ${generateTimeOptions(defaultTimes[day].end)}
+                            </select>
+                            <label for="${day.toLowerCase()}EndTime">End Time</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            });
+
+            timePickersContainer.innerHTML = timePickersHTML;
+        }
+
+        generateTimePickers();
+
+        function addStartTimeListeners() {
+            daysOfWeek.forEach(day => {
+                const startTimePicker = document.getElementById(`${day.toLowerCase()}StartTime`);
+                const endTimePicker = document.getElementById(`${day.toLowerCase()}EndTime`);
+
+                startTimePicker.addEventListener('change', function () {
+                    const selectedStartTime = this.value;
+                    const [startHour, startMinutes] = selectedStartTime.split(':').map(Number);
+                    const startTotalMinutes = startHour * 60 + startMinutes;
+
+                    // Clear the end time options
+                    endTimePicker.innerHTML = '<option value="" selected>Select End Time</option>';
+
+                    // Regenerate only valid end times
+                    for (let hour = 0; hour < 24; hour++) {
+                        for (let minute = 0; minute < 60; minute += 30) {
+                            const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                            const totalMinutes = hour * 60 + minute;
+
+                            if (totalMinutes > startTotalMinutes) {
+                                const option = document.createElement('option');
+                                option.value = timeString;
+                                option.textContent = timeString;
+                                endTimePicker.appendChild(option);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        addStartTimeListeners();
+    </script>
+{% endblock %}

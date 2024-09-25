@@ -1,0 +1,63 @@
+{% extends 'main.html' %}
+
+{% block doctors %}active_link{% endblock %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item active" aria-current="page">Doctors</li>{% endblock %}
+
+{% block display_heading %}{% endblock %}
+{% block heading %} Doctors List {% endblock %}
+{% block add_link %}/add_doctor{% endblock %}
+
+{% block maincontent %}
+    <div class="hide-scroll">
+        <table class="table table-striped">
+            <thead style="background-color: #0e2238;color: white">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">NPI</th>
+                <th scope="col">Name</th>
+                <th scope="col">Specialties</th>
+                <th scope="col">No. of Aff. Clinics</th>
+                <th scope="col">No. of Aff. Patients</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if doctors %}
+                {% for doctor in doctors %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ doctor.npi }}</td>
+                        <td>{{ doctor.name }}</td>
+                        <td>
+                            {% for speciality in doctor.specialties.all %}
+                                <div class="d-inline-block bg rounded px-1">{{ speciality }}</div>
+                            {% empty %}
+                                No specialties available
+                            {% endfor %}
+                        </td>
+                        <td>{{ doctor.affiliated_clinics }}</td>
+                        <td>{{ doctor.affiliated_patients }}</td>
+                        <td>
+                            <b>
+                                <a href="doctors/{{ doctor.id }}"
+                                   class="d-inline-flex align-items-center justify-content-center">
+                                    manage
+                                    <span class="material-symbols-outlined" style="font-size: 25px">
+                                expand_circle_right
+                            </span>
+                                </a>
+                            </b>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" align="center">No Doctors Yet</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

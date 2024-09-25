@@ -1,0 +1,135 @@
+{% extends 'main.html' %}
+
+{% block maincontent %}
+    <h1 align="center"> Welcome {{ request.user.username }} </h1>
+    <main role="main" class="mt-4">
+        <div class="jumbotron">
+            <div class="col-sm-8 mx-auto py-2 rounded">
+                <h2 class="mb-3 fw-bolder">API Details</h2>
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="patient-tab" data-bs-toggle="tab" data-bs-target="#patient"
+                                type="button" role="tab" aria-controls="patient" aria-selected="true">Patient
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="doctor-tab" data-bs-toggle="tab" data-bs-target="#doctor"
+                                type="button" role="tab" aria-controls="doctor" aria-selected="false">Doctor
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="clinic-tab" data-bs-toggle="tab" data-bs-target="#clinic"
+                                type="button" role="tab" aria-controls="clinic" aria-selected="false">Clinic
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="myTabContent">
+
+                <div class="tab-pane fade show active" id="patient" role="tabpanel" aria-labelledby="patient-tab">
+                    <div class="col-sm-8 mx-auto px-3 py-3 rounded" style="background-color: #dee2e6">
+                        <h3 class="mb-3 fw-bolder">Add Patient API</h3>
+                        <p>This API allows external systems to create a new patient in the database. No affiliation is
+                            required
+                            to create the patient.
+                        <p>Method : POST</p>
+                        <p>URL : "/api/add_patient/"</p>
+                        <p>Example Request (JSON):</p>
+                        <p>
+                        <pre class="p-1 rounded d-inline-block" style="background-color: #dee3eb;color:#000000a1">{
+  "name": "Example Name",
+  "address": "Example address",
+  "phone_number": "000-000-0000",
+  "date_of_birth": "0000-00-00",
+  "last_4_ssn": "000",
+  "gender": "M"/"F"
+}</pre>
+                        </span></p>
+                        <p>
+                            <a class="btn btn-primary bs-button" href="/api/add_patient/" role="button">View Add Patient
+                                API
+                                »</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade show" id="doctor" role="tabpanel" aria-labelledby="doctor-tab">
+                    <div class="col-sm-8 mx-auto px-3 py-3 rounded" style="background-color: #dee2e6">
+                        <h3 class="mb-3 fw-bolder">Add Doctor API</h3>
+                        <p>This API allows external systems to add a new doctor to the system. The doctor can be added
+                            without affiliation to a clinic or patients.
+                        <p>Method : POST</p>
+                        <p>URL : "/api/add_doctor/"</p>
+                        <p>Example Request (JSON):</p>
+                        <p>
+                        <pre class="p-1 rounded d-inline-block" style="background-color: #dee3eb;color:#000000a1">{
+  "npi": "0000000000",
+  "name": "Dr. Example",
+  "email": "example@brightsmile.com",
+  "phone_number": "000-000-0000",
+  "specialties": ["Cleaning", "crown"]
+}</pre>
+                        </span></p>
+                        <p>
+                            <a class="btn btn-primary bs-button" href="/api/add_doctor/" role="button">View Add Doctor
+                                API
+                                »</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade show" id="clinic" role="tabpanel" aria-labelledby="clinc-tab">
+
+                    <div class="col-sm-8 mx-auto px-3 py-3 rounded" style="background-color: #dee2e6">
+                        <h3 class="mb-3 fw-bolder">Get Clinic Details API</h3>
+                        <p>This API allows external systems to retrieve details of a specific clinic without showing affiliated patients and doctors.
+                        <p>Method : GET</p>
+                        <p>URL : "/api/get_clinic/1/"</p>
+                        <p>Example Response (JSON):</p>
+                        <p>
+                        <pre class="p-1 rounded d-inline-block" style="background-color: #dee3eb;color:#000000a1">{
+  "name": "Example Clinic",
+  "phone_number": "000-000-0000",
+  "city": "Fairfax",
+  "state": "VA",
+  "email": "contact@brightsmile.com"
+}</pre>
+                        </span></p>
+                        <p>
+                            <a class="btn btn-primary bs-button" href="/api/get_clinic/1/" role="button">View Clinic Details
+                                API
+                                »</a>
+                        </p>
+                    </div>
+                    <br>
+                    <div class="col-sm-8 mx-auto px-3 py-3 rounded" style="background-color: #dee2e6">
+                        <h3 class="mb-3 fw-bolder">Add Clinic API</h3>
+                        <p>This API allows external systems to add a new clinic to the system. The clinic can be added
+                            without any affiliations to doctors or patients.
+                        <p>Method : POST</p>
+                        <p>URL : "/api/add_clinic/"</p>
+                        <p>Example Request (JSON):</p>
+                        <p>
+                        <pre class="p-1 rounded d-inline-block" style="background-color: #dee3eb;color:#000000a1">{
+  "name": "Example Clinic",
+  "phone_number": "000-000-0000",
+  "city": "Fairfax",
+  "state": "VA",
+  "email": "contact@brightsmile.com"
+}</pre>
+                        </span></p>
+                        <p>
+                            <a class="btn btn-primary bs-button" href="/api/add_clinic/" role="button">View Add Clinic
+                                API
+                                »</a>
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+{% endblock %}

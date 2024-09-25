@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include 'head.html' %}
+</head>
+
+<body>
+{% include 'modal.html' %}
+<div class="wrapper">
+    <aside id="sidebar">
+        <div class="d-flex">
+            <button class="toggle-btn d-flex align-center" type="button">
+                <span class="material-symbols-outlined text-white" id="logo">
+                    menu_open
+                </span>
+            </button>
+            <div class="sidebar-logo">
+                <a href="#">Bright Smile</a>
+            </div>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a href="/clinics" class="sidebar-link align-middle {% block clinic %}{% endblock %}">
+                    <div class="d-flex align-center">
+                        <i class="material-symbols-outlined">
+                            home_health
+                        </i>
+                        <span>Clinics</span>
+                    </div>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/doctors" class="sidebar-link align-middle {% block doctors %}{% endblock %}">
+                    <div class="d-flex align-center">
+                        <i class="material-symbols-outlined">
+                            clinical_notes
+                        </i>
+                        <span>Doctors</span>
+                    </div>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/patients" class="sidebar-link align-middle {% block patients %}{% endblock %}">
+                    <div class="d-flex align-center">
+                        <i class="material-symbols-outlined">
+                            patient_list
+                        </i>
+                        <span>Patients</span>
+                    </div>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="" class="sidebar-link align-middle">
+                <div class="d-flex align-center">
+                    <i class="material-symbols-outlined">
+                        account_circle
+                    </i>
+                    <span>{{ request.user.username }}</span>
+                </div>
+            </a>
+            <a href="logout" class="sidebar-link align-middle">
+                <div class="d-flex align-center">
+                    <i class="material-symbols-outlined">
+                        move_item
+                    </i>
+                    <span>Logout</span>
+                </div>
+            </a>
+        </div>
+    </aside>
+
+    <div id="main" class="main p-3 ">
+        <div style="min-height: calc(100vh - 100px);">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                    {% block breadcrumb-item %}{% endblock %}
+                </ol>
+            </nav>
+            <div>
+                <div class="d-flex justify-content-between align-items-center {% block display_heading %}d-none{% endblock %}">
+                    <H1>{% block heading %}{% endblock %}</H1>
+                    <span class="float-right">
+                        <button type="button" class="btn btn-md action-btn-outline" onclick="window.location.href='{% block add_link %}{% endblock %}'">
+                            <div class="d-flex justify-content-between">
+                                <span class="material-symbols-outlined">
+                                    add
+                                </span>
+                                Add
+                            </div>
+                        </button>
+                    </span>
+                </div>
+                <br>
+                {% block maincontent %}
+                {% endblock %}
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </div>
+
+</div>
+{% include 'scripts.html' %}
+{% block scripts %}
+{% endblock %}
+</body>
+
+</html>

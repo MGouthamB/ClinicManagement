@@ -1,0 +1,266 @@
+{% extends 'main.html' %}
+
+{% block breadcrumb-item %}
+    <li class="breadcrumb-item"><a href="/patients">Patients</a></li>
+    <li class="breadcrumb-item"><a href="/patients/{{ patient.id }}">{{ patient.name }}</a></li>
+    {% if patient %}
+        <li class="breadcrumb-item active" aria-current="page">
+            {% if appointment %}New Appointment{% else %}New Visit{% endif %}
+        </li>
+    {% endif %}
+{% endblock %}
+
+{% block maincontent %}
+    <div class="container" style="max-width: 800px">
+        <H1>
+            {% if appointment %}Appointment Details{% else %}Visit Details{% endif %}</H1><br>
+        <form action="/{% if appointment %}add_appointment{% else %}add_visit{% endif %}/{{ patient.id }}"
+              method="post">
+            {% csrf_token %}
+            <div class="row gy-2 overflow-hidden">
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" name="procedure" id="procedureSelect" required>
+                            <option value="" selected>Select Procedure</option>
+                            {% for procedure in procedures %}
+                                <option value="{{ procedure.id }}">{{ procedure.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="procedureSelect">Procedure</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-floating mb-3" id="clinicContainer" style="display: none;">
+                        <select class="form-select" name="clinic" id="clinicSelect" required>
+                            <option value="" selected>Select Clinic</option>
+                        </select>
+                        <label for="clinicSelect">Clinic</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-floating mb-3" id="doctorContainer" style="display: none;">
+                        <select class="form-select" name="doctor" id="doctorSelect" required>
+                            <option value="" selected>Select Doctor</option>
+                        </select>
+                        <label for="doctorSelect">Doctor</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-floating mb-3">
+                        <input type="date" class="form-control" name="date" id="date"
+                               required>
+                        <label for="date" class="form-label">{% if appointment %}Appointment Date{% else %}Visit
+                            Date{% endif %}</label>
+                    </div>
+                </div>
+                {% if appointment %}
+                    <div class="col-12" id="timePickerContainer" style="display:none;">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" name="time" id="timeSelect" aria-label="Select Time" required>
+                                <option value="" selected>Select Time</option>
+                            </select>
+                            <label for="timeSelect">Time</label>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" name="doctor_notes" id="doctor_notes"
+                                      style="height: 150px"></textarea>
+                            <label for="doctor_notes" class="form-label">Doctor Notes</label>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="col-12">
+                    <div class="d-grid my-3">
+                        <button class="btn btn-primary btn-lg bs-button" type="submit">
+                            Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            {% if appointment %}
+
+                // Function to fetch the Blocked Times for the Appointment
+                async function fetchBlockedTimes(doctorId, clinicId, procedureId, date) {
+                    try {
+                        const response = await fetch(`/get_blocked_times/${doctorId}/${clinicId}/${procedureId}?date=${date}`);
+                        if (response.status == 200) {
+                            return await response.json();
+                        } else {
+                            return {
+                                start: "00:00",
+                                end: "10:00",
+                                list: []
+                            };
+                        }
+                    } catch (error) {
+                        alert('Error fetching blocked times, Please refresh or change parameters');
+                        return {
+                            start: "00:00",
+                            end: "00:00",
+                            list: []
+                        };
+                    }
+                }
+
+                function generateAvailableTimeOptions(start, end, blockedTimes) {
+                    const timeSelect = document.getElementById('timeSelect');
+                    let options = '<option value="" selected>Select Time</option>';
+                    const interval = 30; // 30-minute interval
+
+                    // Parse start and end times (assuming the format is 'HH:MM')
+                    const [startHour, startMinute] = start.split(':').map(Number);
+                    const [endHour, endMinute] = end.split(':').map(Number);
+
+                    let hasAvailableTimes = false; // Flag to check if any time is available
+
+                    // Loop through the time range, starting from startHour:startMinute and ending at endHour:endMinute
+                    for (let hour = startHour; hour <= endHour; hour++) {
+                        for (let minute = (hour === startHour ? startMinute : 0); minute < 60; minute += interval) {
+                            // Stop generating options when we reach the end time
+                            if (hour === endHour && minute >= endMinute) {
+                                break;
+                            }
+
+                            const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+                            if (!blockedTimes.includes(timeString)) {
+                                options += `<option value="${timeString}">${timeString}</option>`;
+                                hasAvailableTimes = true;
+                            }
+                        }
+                    }
+
+                    if (!hasAvailableTimes) {
+                        options = '<option value="" selected>No time available</option>';
+                    }
+
+                    timeSelect.innerHTML = options;
+                }
+
+                // Function to update the Available times based on the selections before
+                async function updateAvailableTimes() {
+                    const doctorId = document.getElementById('doctorSelect').value;
+                    const clinicId = document.getElementById('clinicSelect').value;
+                    const procedureId = document.getElementById('procedureSelect').value;
+                    const date = document.getElementById('date').value;
+
+                    if (doctorId && clinicId && procedureId && date) {
+
+                        const blockedTimes = await fetchBlockedTimes(doctorId, clinicId, procedureId, date);
+
+                        generateAvailableTimeOptions(blockedTimes.start, blockedTimes.end, blockedTimes.list);
+
+                        document.getElementById('timePickerContainer').style.display = 'block';
+                    } else {
+
+                        document.getElementById('timePickerContainer').style.display = 'none';
+                    }
+                }
+
+                document.getElementById('doctorSelect').addEventListener('change', updateAvailableTimes);
+                document.getElementById('clinicSelect').addEventListener('change', updateAvailableTimes);
+                document.getElementById('procedureSelect').addEventListener('change', updateAvailableTimes);
+                document.getElementById('date').addEventListener('change', updateAvailableTimes);
+            {% endif %}
+
+            const procedureSelect = document.getElementById('procedureSelect');
+            const clinicSelect = document.getElementById('clinicSelect');
+            const doctorSelect = document.getElementById('doctorSelect');
+            const clinicContainer = document.getElementById('clinicContainer');
+            const doctorContainer = document.getElementById('doctorContainer');
+
+            // Fetch clinics based on the selected procedure
+            async function fetchClinics(procedureId) {
+                try {
+                    const response = await fetch(`/get_clinics_by_procedure/${procedureId}/`);
+                    const data = await response.json();
+                    return data.clinics;
+                } catch (error) {
+                    console.error('Error fetching clinics:', error);
+                    return [];
+                }
+            }
+
+            // Fetch doctors based on the selected clinic and procedure
+            async function fetchDoctors(clinicId, procedureId) {
+                try {
+                    const response = await fetch(`/get_doctors_by_clinic/${clinicId}/${procedureId}/`);
+                    const data = await response.json();
+                    return data.doctors;
+                } catch (error) {
+                    console.error('Error fetching doctors:', error);
+                    return [];
+                }
+            }
+
+            // Update clinic options based on the selected procedure
+            function updateClinicOptions(clinics) {
+                let options = '<option value="" selected>Select Clinic</option>';
+                if (clinics.length > 0) {
+                    clinics.forEach(clinic => {
+                        options += `<option value="${clinic.id}">${clinic.name}</option>`;
+                    });
+                } else {
+                    options = '<option value="" selected>No clinics available</option>';
+                }
+                clinicSelect.innerHTML = options;
+                clinicContainer.style.display = clinics.length > 0 ? 'block' : 'none';
+                clinicSelect.disabled = clinics.length === 0;
+            }
+
+            // Update doctor options based on the selected clinic
+            function updateDoctorOptions(doctors) {
+                let options = '<option value="" selected>Select Doctor</option>';
+                if (doctors.length > 0) {
+                    doctors.forEach(doctor => {
+                        options += `<option value="${doctor.id}">${doctor.name} (${doctor.npi})</option>`;
+                    });
+                } else {
+                    options = '<option value="" selected>No doctors available</option>';
+                }
+                doctorSelect.innerHTML = options;
+                doctorContainer.style.display = doctors.length > 0 ? 'block' : 'none';
+                doctorSelect.disabled = doctors.length === 0;
+            }
+
+            // When a procedure is selected, fetch clinics
+            procedureSelect.addEventListener('change', async function () {
+                const procedureId = procedureSelect.value;
+                if (procedureId) {
+                    const clinics = await fetchClinics(procedureId);
+                    updateClinicOptions(clinics);
+                } else {
+                    clinicContainer.style.display = 'none';
+                    doctorContainer.style.display = 'none';
+                }
+            });
+
+            // When a clinic is selected, fetch doctors
+            clinicSelect.addEventListener('change', async function () {
+                const clinicId = clinicSelect.value;
+                const procedureId = procedureSelect.value; // Make sure the procedure is still selected
+                if (clinicId && procedureId) {
+                    const doctors = await fetchDoctors(clinicId, procedureId);
+                    updateDoctorOptions(doctors);
+                } else {
+                    doctorContainer.style.display = 'none';
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}
